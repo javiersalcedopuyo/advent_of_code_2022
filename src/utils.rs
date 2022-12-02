@@ -4,8 +4,15 @@ use std::fs;
 pub fn read_file(file_name: &str) -> String
 {
     let path = "./inputs/".to_owned() + file_name;
-    return fs::read_to_string(path)
-                .unwrap_or_default()
+    if let Ok(contents) = fs::read_to_string(&path)
+    {
+        return contents;
+    }
+    else
+    {
+        println!("⛔️ ERROR: File {} not found!", path);
+        return "".to_string();
+    }
 }
 
 #[cfg(test)]
