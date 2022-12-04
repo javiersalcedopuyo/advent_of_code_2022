@@ -5,6 +5,7 @@ mod utils;
 mod day_1;
 mod day_2;
 mod day_3;
+mod day_4;
 
 fn main()
 {
@@ -16,4 +17,7 @@ fn main()
 
     // println!("Day 3, part 1: {}", day_3::resolve_1("day3.txt"));
     // println!("Day 3, part 2: {}", day_3::resolve_2("day3.txt"));
+
+    // println!("Day 4, part 1: {}", day_4::resolve_1("day4.txt"));
+    // println!("Day 4, part 2: {}", day_4::resolve_2("day4.txt"));
 }
