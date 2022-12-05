@@ -19,9 +19,23 @@ pub fn resolve_1(file_name: &str) -> String
     return stack_tops;
 }
 
-pub fn resolve_2(_file_name: &str) -> i32
+pub fn resolve_2(file_name: &str) -> String
 {
-    -1
+    let input = read_file(file_name);
+    let (input_stacks, instructions) = split_input(&input);
+    let mut stacks = get_stacks_from_input(&input_stacks);
+
+    apply_block_instructions(&mut stacks, &instructions);
+
+    let mut stack_tops: String = "".to_string();
+    for stack in stacks
+    {
+        if let Some(top) = stack.last()
+        {
+            stack_tops.push(top.to_owned());
+        }
+    }
+    return stack_tops;
 }
 
 fn split_input(input: &String) -> (String, String)
@@ -86,6 +100,29 @@ fn apply_instructions(stacks: &mut Vec<Vec<char>>, instructions: &String)
     }
 }
 
+fn apply_block_instructions(stacks: &mut Vec<Vec<char>>, instructions: &String)
+{
+    for instruction in instructions.lines()
+    {
+        let words: Vec<&str> = instruction.split_whitespace().collect();
+        assert_eq!(words.len(), 6);
+        let quantity    = words[1].parse::<usize>().unwrap_or_default();
+        let origin      = words[3].parse::<usize>();
+        let destination = words[5].parse::<usize>();
+
+        if origin.is_err() || destination.is_err() { continue; }
+
+        let origin = origin.unwrap();
+        assert!(origin > 0);
+        let destination = destination.unwrap();
+        assert!(destination > 0);
+
+        let split_idx = stacks[origin-1].len() - quantity;
+        let mut block = stacks[origin-1].split_off(split_idx);
+        stacks[destination-1].append(&mut block);
+    }
+}
+
 #[cfg(test)]
 mod tests
 {
@@ -97,7 +134,13 @@ mod tests
     #[test]
     fn test_resolve_1()
     {
-        assert_eq!(resolve_1(FILE_NAME), "CMZ")
+        assert_eq!(resolve_1(FILE_NAME), "CMZ");
+    }
+
+    #[test]
+    fn test_resolve_2()
+    {
+        assert_eq!(resolve_2(FILE_NAME), "MCD");
     }
 
     #[test]
@@ -145,5 +188,21 @@ mod tests
         assert_eq!(stacks[0], vec!['Z', 'N', 'D']);
         assert_eq!(stacks[1], vec!['M', 'C']);
         assert_eq!(stacks[2], vec!['P']);
+    }
+
+    #[test]
+    fn test_apply_single_block_instruction()
+    {
+        let input = read_file(FILE_NAME);
+        let (stacks_input, _) = split_input(&input);
+        let instructions = "move 3 from 2 to 3".to_string();
+        let mut stacks = get_stacks_from_input(&stacks_input);
+
+        apply_block_instructions(&mut stacks, &instructions);
+
+        assert_eq!(stacks[0], vec!['Z', 'N']);
+        assert!(stacks[1].is_empty());
+        assert_eq!(stacks[2], vec!['P', 'M' , 'C', 'D']);
+
     }
 }
